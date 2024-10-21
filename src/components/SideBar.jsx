@@ -1,4 +1,3 @@
-// Sidebar.js
 import React, { useState, useEffect } from 'react';
 import logo from '../assets/logo.jpg';
 import { FaFilter } from "react-icons/fa";
@@ -7,19 +6,18 @@ import { FaCaretDown, FaCaretUp } from "react-icons/fa";
 const Sidebar = ({
   companies = [],
   designations = [],
-  services = [],
+  services = [], 
   selectedCompanies,
   selectedDesignations,
   selectedServices,
   applyFilters,
   resetFilters
 }) => {
-  // Local states for checkboxes
   const [localSelectedCompanies, setLocalSelectedCompanies] = useState(selectedCompanies);
   const [localSelectedDesignations, setLocalSelectedDesignations] = useState(selectedDesignations);
   const [localSelectedServices, setLocalSelectedServices] = useState(selectedServices);
 
-  // State to manage dropdown visibility
+  
   const [openDropdown, setOpenDropdown] = useState({
     companies: false,
     designations: false,
@@ -27,10 +25,10 @@ const Sidebar = ({
   });
 
   useEffect(() => {
-    // Sync local states with props when they change
     setLocalSelectedCompanies(selectedCompanies);
     setLocalSelectedDesignations(selectedDesignations);
     setLocalSelectedServices(selectedServices);
+    
   }, [selectedCompanies, selectedDesignations, selectedServices]);
 
   const handleCompanyChange = (company) => {
@@ -53,7 +51,6 @@ const Sidebar = ({
   };
 
   const handleResetFilters = () => {
-    // Reset local states to empty
     setLocalSelectedCompanies({});
     setLocalSelectedDesignations({});
     setLocalSelectedServices({});
@@ -72,6 +69,7 @@ const Sidebar = ({
       <img src={logo} alt="Logo" />
       <h4>Filters <FaFilter /></h4>
 
+      {/* Companies Dropdown */}
       <div className="filter-container">
         <div className="filter-header" onClick={() => toggleDropdown('companies')}>
           <h4>Companies {openDropdown.companies ? <FaCaretUp /> : <FaCaretDown />}</h4>
@@ -93,6 +91,7 @@ const Sidebar = ({
         )}
       </div>
 
+      {/* Designations Dropdown */}
       <div className="filter-container">
         <div className="filter-header" onClick={() => toggleDropdown('designations')}>
           <h4>Designations {openDropdown.designations ? <FaCaretUp /> : <FaCaretDown />}</h4>
@@ -114,6 +113,7 @@ const Sidebar = ({
         )}
       </div>
 
+      {/* Services Dropdown */}
       <div className="filter-container">
         <div className="filter-header" onClick={() => toggleDropdown('services')}>
           <h4>Services {openDropdown.services ? <FaCaretUp /> : <FaCaretDown />}</h4>
@@ -163,8 +163,8 @@ const Sidebar = ({
         }
         .filter-options {
           padding-left: 20px;
-          max-height:120px;
-          overflow-y:auto;
+          max-height: 120px;
+          overflow-y: auto; /* Enable vertical scrolling for options */
         }
         .filter-checkbox {
           margin-bottom: 5px; /* Space between checkbox rows */

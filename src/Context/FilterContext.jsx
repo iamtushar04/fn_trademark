@@ -16,7 +16,7 @@ export const FilterProvider = ({ children }) => {
 
   const updateFilters = (filterName, index) => {
     const updatedOptions = [...filters[filterName].options];
-    updatedOptions[index] = !updatedOptions[index]; // Toggle the checkbox
+    updatedOptions[index] = !updatedOptions[index]; 
     setFilters((prevFilters) => ({
       ...prevFilters,
       [filterName]: { ...prevFilters[filterName], options: updatedOptions },

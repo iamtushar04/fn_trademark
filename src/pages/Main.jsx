@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
+import Sidebar from '../components/SideBar';
 import Table from '../components/Table';
 import { useData } from '../Context/DataContext';
 import Navbar from '../components/Navbar';
