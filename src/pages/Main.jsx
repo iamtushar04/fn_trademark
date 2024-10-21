@@ -34,7 +34,7 @@ const MainPage = () => {
       <Sidebar
         companies={companies}
         designations={designations}
-        services={services} // Use dynamically generated services
+        services={services} 
         selectedCompanies={selectedCompanies}
         selectedDesignations={selectedDesignations}
         selectedServices={selectedServices}

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import logo from '../assets/logo.jpg';
-import { FaFilter } from "react-icons/fa";
-import { FaCaretDown, FaCaretUp } from "react-icons/fa";
+import { FaFilter, FaCaretDown, FaCaretUp } from "react-icons/fa";
 
 const Sidebar = ({
   companies = [],
@@ -16,7 +15,6 @@ const Sidebar = ({
   const [localSelectedCompanies, setLocalSelectedCompanies] = useState(selectedCompanies);
   const [localSelectedDesignations, setLocalSelectedDesignations] = useState(selectedDesignations);
   const [localSelectedServices, setLocalSelectedServices] = useState(selectedServices);
-
   
   const [openDropdown, setOpenDropdown] = useState({
     companies: false,
@@ -24,11 +22,14 @@ const Sidebar = ({
     services: false,
   });
 
+  const [searchCompany, setSearchCompany] = useState('');
+  const [searchService, setSearchService] = useState('');
+  const [searchDesignation, setSearchDesignation] = useState('');
+
   useEffect(() => {
     setLocalSelectedCompanies(selectedCompanies);
     setLocalSelectedDesignations(selectedDesignations);
     setLocalSelectedServices(selectedServices);
-    
   }, [selectedCompanies, selectedDesignations, selectedServices]);
 
   const handleCompanyChange = (company) => {
@@ -64,6 +65,18 @@ const Sidebar = ({
     }));
   };
 
+  const filteredCompanies = companies.filter(company => 
+    company.toLowerCase().includes(searchCompany.toLowerCase())
+  );
+
+  const filteredServices = services.filter(service =>
+    service && typeof service === 'string' && service.toLowerCase().includes(searchService.toLowerCase())
+  );
+
+  const filteredDesignations = designations.filter(designation =>
+    designation && typeof designation === 'string' && designation.toLowerCase().includes(searchDesignation.toLowerCase())
+  );
+
   return (
     <div className="sidebar">
       <img src={logo} alt="Logo" />
@@ -76,7 +89,14 @@ const Sidebar = ({
         </div>
         {openDropdown.companies && (
           <div className="filter-options">
-            {companies.map(company => (
+            <input
+              type="text"
+              placeholder="Search companies..."
+              value={searchCompany}
+              onChange={(e) => setSearchCompany(e.target.value)}
+              className="filter-search"
+            />
+            {filteredCompanies.map(company => (
               <div key={company} className="filter-checkbox">
                 <input
                   type="checkbox"
@@ -98,7 +118,14 @@ const Sidebar = ({
         </div>
         {openDropdown.designations && (
           <div className="filter-options">
-            {designations.map(designation => (
+            <input
+              type="text"
+              placeholder="Search designations..."
+              value={searchDesignation}
+              onChange={(e) => setSearchDesignation(e.target.value)}
+              className="filter-search"
+            />
+            {filteredDesignations.map(designation => (
               <div key={designation} className="filter-checkbox">
                 <input
                   type="checkbox"
@@ -116,11 +143,18 @@ const Sidebar = ({
       {/* Services Dropdown */}
       <div className="filter-container">
         <div className="filter-header" onClick={() => toggleDropdown('services')}>
-          <h4>Services {openDropdown.services ? <FaCaretUp /> : <FaCaretDown />}</h4>
+          <h4>Keywords {openDropdown.services ? <FaCaretUp /> : <FaCaretDown />}</h4>
         </div>
         {openDropdown.services && (
           <div className="filter-options">
-            {services.map(service => (
+            <input
+              type="text"
+              placeholder="Search services..."
+              value={searchService}
+              onChange={(e) => setSearchService(e.target.value)}
+              className="filter-search"
+            />
+            {filteredServices.map(service => (
               <div key={service} className="filter-checkbox">
                 <input
                   type="checkbox"
@@ -183,6 +217,13 @@ const Sidebar = ({
         }
         .filter-button:hover {
           background-color: #0056b3; /* Darker blue on hover */
+        }
+        .filter-search {
+          margin-bottom: 10px;
+          padding: 5px;
+          width: 100%; /* Full width */
+          border: 1px solid #ccc; /* Border style */
+          border-radius: 4px; /* Rounded corners */
         }
       `}</style>
     </div>

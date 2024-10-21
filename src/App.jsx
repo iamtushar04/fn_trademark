@@ -10,7 +10,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedROutes';
 
 import { DataProvider } from './Context/DataContext';
-import Category from './components/Category';
+
 import MainPage from './pages/Main';
 import Settings from './pages/Settings';
 
