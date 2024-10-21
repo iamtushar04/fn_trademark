@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Sidebar from '../components/SideBar';
@@ -13,26 +12,29 @@ const MainPage = () => {
   const [selectedDesignations, setSelectedDesignations] = useState({});
   const [selectedServices, setSelectedServices] = useState({});
 
+  // Extract unique companies, designations, and services
+  const companies = [...new Set(data.map(item => item.company))];
+  const designations = [...new Set(data.map(item => item.designation))];
+  const services = [...new Set(data.map(item => item.service))]; // Assuming 'service' is a property in your data
+
   const applyFilters = (companies, designations, services) => {
     setSelectedCompanies(companies);
     setSelectedDesignations(designations);
     setSelectedServices(services);
   };
 
-
-const resetFilters = () => {
-  setSelectedCompanies({});
-  setSelectedDesignations({});
-  setSelectedServices({});
-};
-
+  const resetFilters = () => {
+    setSelectedCompanies({});
+    setSelectedDesignations({});
+    setSelectedServices({});
+  };
 
   return (
     <div className="main-container">
       <Sidebar
-        companies={[...new Set(data.map(item => item.company))]}
-        designations={[...new Set(data.map(item => item.designation))]}
-        services={['Litigation', 'Patent']} // Adjust services as needed
+        companies={companies}
+        designations={designations}
+        services={services} // Use dynamically generated services
         selectedCompanies={selectedCompanies}
         selectedDesignations={selectedDesignations}
         selectedServices={selectedServices}
@@ -40,7 +42,7 @@ const resetFilters = () => {
         resetFilters={resetFilters}
       />
       <div className="content">
-        <Navbar/>
+        <Navbar />
         <Routes>
           <Route path="/" element={<Table data={data} selectedCompanies={selectedCompanies} selectedDesignations={selectedDesignations} selectedServices={selectedServices} />} />
           {/* Add more routes as needed */}
