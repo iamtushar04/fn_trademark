@@ -47,7 +47,7 @@ const Table = ({ data, selectedCompanies, selectedDesignations, selectedServices
                 <td>
                   {content.link ? (
                     <a href={content.link} target="_blank" rel="noopener noreferrer" className="link">
-                      know more...
+                      Bio url
                     </a>
                   ) : (
                     'N/A'
