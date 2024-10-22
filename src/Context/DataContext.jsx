@@ -1,4 +1,3 @@
-// src/DataContext.js
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const DataContext = createContext();
@@ -11,7 +10,7 @@ export const DataProvider = ({ children }) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch('http://135.181.19.83:5039/attorneys/');
+                const response = await fetch('http://135.181.19.83:5039/attorneys/?company=SLW&limit=50');
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }

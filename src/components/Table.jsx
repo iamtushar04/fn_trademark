@@ -1,20 +1,26 @@
 import React, { useState, useEffect } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Table = ({ data, selectedCompanies, selectedDesignations, selectedServices }) => {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [newEntry, setNewEntry] = useState({
-    company: '',
-    name: '',
-    email: '',
-    designation: '',
-    phone: '',
-    link: ''
+    company: "",
+    name: "",
+    designation: "",
+    email: "",
+    phone: "",
+    city: "",
+    weblink: "",
+    services: "",
+    industry: "",
+    keyword: "",
+    description: ""
   });
   const [tableData, setTableData] = useState(data);
 
   useEffect(() => {
-    // Simulate data fetching
     const timer = setTimeout(() => {
       setLoading(false);
     }, 1500); // Simulated loading time
@@ -39,33 +45,45 @@ const Table = ({ data, selectedCompanies, selectedDesignations, selectedServices
 
   const handleAddEntry = async (e) => {
     e.preventDefault();
-  
+
     try {
-      // Make the API call to send the new entry data
-      const response = await fetch('api', {
+      const response = await fetch('http://135.181.19.83:5039/add_attorney/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(newEntry), 
+        body: JSON.stringify(newEntry),
       });
-  
+
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
-  
-      const data = await response.json(); 
-  
-  
+
+      // Show success toast
+      toast.success('Entry added successfully!');
+
+      const data = await response.json(); // Assuming you might want to use the response data
       setTableData((prev) => [...prev, newEntry]);
-      setNewEntry({ company: '', name: '', email: '', designation: '', phone: '', link: '' });
+      setNewEntry({
+        company: "",
+        name: "",
+        designation: "",
+        email: "",
+        phone: "",
+        city: "",
+        weblink: "",
+        services: "",
+        industry: "",
+        keyword: "",
+        description: ""
+      });
       setShowForm(false);
     } catch (error) {
       console.error('Error adding entry:', error);
-     
+      // Show error toast
+      toast.error('Failed to add entry. Please try again.');
     }
   };
-  
 
   const downloadCSV = () => {
     const csvContent = [
@@ -94,11 +112,11 @@ const Table = ({ data, selectedCompanies, selectedDesignations, selectedServices
 
   return (
     <div className="table-container">
+      <ToastContainer />
       <div className="button-container">
         <button onClick={() => setShowForm(!showForm)} className="toggle-form-button">
           {showForm ? 'Cancel' : 'Add Entry'}
         </button>
-
         <button onClick={downloadCSV} className="download-button">
           Download CSV
         </button>
@@ -173,7 +191,7 @@ const Table = ({ data, selectedCompanies, selectedDesignations, selectedServices
         }
         .button-container {
           display: flex;
-          justify-content: flex-end; /* Aligns buttons to the right */
+          justify-content: flex-end;
           margin-bottom: 20px;
         }
         .toggle-form-button,
@@ -184,7 +202,7 @@ const Table = ({ data, selectedCompanies, selectedDesignations, selectedServices
           border: none;
           border-radius: 4px;
           cursor: pointer;
-          margin-left: 10px; /* Adds space between buttons */
+          margin-left: 10px;
         }
         .toggle-form-button:hover,
         .download-button:hover {

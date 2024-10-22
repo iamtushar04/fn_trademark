@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import logo from '../assets/logo.jpg';
 import { FaFilter, FaCaretDown, FaCaretUp } from "react-icons/fa";
 
+
 const Sidebar = ({
   companies = [],
   designations = [],
@@ -110,6 +111,7 @@ const Sidebar = ({
           </div>
         )}
       </div>
+
 
       {/* Designations Dropdown */}
       <div className="filter-container">
