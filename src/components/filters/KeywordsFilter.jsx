@@ -1,19 +1,26 @@
 import React, { useState } from 'react';
 import { FaCaretDown, FaCaretUp } from "react-icons/fa";
+import { useFilter } from '../../Context/FilterContext';
 
-const ServiceFilter = ({ services = [], selectedServices, onChange }) => {
+const KeywordFilter = () => {
+  const {
+    keywords,                // Use keywords from context
+    localSelectedServices,
+    handleServiceChange,
+    searchTerm,
+    setSearchTerm,
+  } = useFilter(); 
+
   const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState('');
 
-  // Ensure services is always an array
-  const filteredServices = (services || []).filter(service =>
-    service.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const handleServiceChange = (service) => {
-    const newSelection = { ...selectedServices, [service]: !selectedServices[service] };
-    onChange(newSelection);
+  const filterKeywords = () => {
+    return (keywords || []).filter(keyword =>
+      typeof keyword === 'string' && keyword.toLowerCase().includes(searchTerm.toLowerCase())
+    );
   };
+
+  const filteredKeywords = filterKeywords();
+  console.log(keywords);
 
   return (
     <div className="filter-container">
@@ -24,29 +31,29 @@ const ServiceFilter = ({ services = [], selectedServices, onChange }) => {
         <div className="filter-options">
           <input
             type="text"
-            placeholder="Search services..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search keywords..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             className="filter-search"
           />
-          {filteredServices.length > 0 ? (
-            filteredServices.map(service => (
-              <div key={service} className="filter-checkbox">
+          {filteredKeywords.length > 0 ? (
+            filteredKeywords.map(keyword => (
+              <div key={keyword} className="filter-checkbox">
                 <input
                   type="checkbox"
-                  id={service}
-                  checked={selectedServices[service] || false}
-                  onChange={() => handleServiceChange(service)}
+                  id={keyword}
+                  checked={localSelectedServices[keyword] || false}
+                  onChange={() => handleServiceChange(keyword)}
                 />
-                <label htmlFor={service}>{service}</label>
+                <label htmlFor={keyword}>{keyword}</label>
               </div>
             ))
           ) : (
-            <div>No services found.</div>
+            <div>No keywords found.</div>
           )}
         </div>
       )}
-
+      
       <style jsx>{`
         .filter-container {
           margin-bottom: 10px;
@@ -80,4 +87,4 @@ const ServiceFilter = ({ services = [], selectedServices, onChange }) => {
   );
 };
 
-export default ServiceFilter;
+export default KeywordFilter;

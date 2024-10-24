@@ -1,44 +1,55 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useFilter } from '../../Context/FilterContext';
 import { FaCaretDown, FaCaretUp } from "react-icons/fa";
+import { useState } from 'react';
 
-const DesignationFilter = ({ designations = [], selectedDesignations, onChange }) => {
-  const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState('');
+const DesignationFilter = () => {
+  const {
+    filteredDesignations,
+    loading,
+    error,
+    localSelectedDesignations,
+    handleDesignationChange,
+    searchTerm,
+    setSearchTerm,
+  } = useFilter();
 
-  // Ensure designations is always an array
-  const filteredDesignations = (designations || []).filter(designation =>
-    designation.toLowerCase().includes(search.toLowerCase())
-  );
+  const [openDropdown, setOpenDropdown] = useState(false);
 
-  const handleDesignationChange = (designation) => {
-    const newSelection = { ...selectedDesignations, [designation]: !selectedDesignations[designation] };
-    onChange(newSelection);
+  const toggleDropdown = () => {
+    setOpenDropdown(prev => !prev);
   };
 
   return (
     <div className="filter-container">
-      <div className="filter-header" onClick={() => setOpen(prev => !prev)}>
-        <h4>Designations {open ? <FaCaretUp /> : <FaCaretDown />}</h4>
+      <div className="filter-header" onClick={toggleDropdown}>
+        <h4>
+          Designations {openDropdown ? <FaCaretUp /> : <FaCaretDown />}
+        </h4>
       </div>
-      {open && (
+      {openDropdown && (
         <div className="filter-options">
           <input
             type="text"
             placeholder="Search designations..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             className="filter-search"
           />
-          {filteredDesignations.length > 0 ? (
+          {loading ? (
+            <div>Loading...</div>
+          ) : error ? (
+            <div>Error fetching designations.</div>
+          ) : filteredDesignations.length > 0 ? (
             filteredDesignations.map(designation => (
               <div key={designation} className="filter-checkbox">
                 <input
                   type="checkbox"
-                  id={designation}
-                  checked={selectedDesignations[designation] || false}
+                  id={`designation-${designation}`} 
+                  checked={localSelectedDesignations[designation] || false}
                   onChange={() => handleDesignationChange(designation)}
                 />
-                <label htmlFor={designation}>{designation}</label>
+                <label htmlFor={`designation-${designation}`}>{designation}</label>
               </div>
             ))
           ) : (

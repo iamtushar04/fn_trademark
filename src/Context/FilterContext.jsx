@@ -1,80 +1,180 @@
-// src/FilterContext.js
-import React, { createContext, useContext, useState } from 'react';
-import { useData } from '../Context/DataContext'; 
+import { createContext, useContext, useEffect, useState } from 'react';
 
-// Create a context
 const FilterContext = createContext();
 
-// Create a provider component
 export const FilterProvider = ({ children }) => {
-  const { data } = useData(); // Get data from DataContext
-  const [filters, setFilters] = useState({
-    companies: { options: [], isCollapsed: true },
-    designations: { options: [], isCollapsed: true },
-    services: { options: [], isCollapsed: true },
-  });
+  const [companies, setCompanies] = useState([]);
+  const [designations, setDesignations] = useState([]);
+  const [services, setServices] = useState([]); // Assuming you may want to fetch services in the future
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [localSelectedCompanies, setLocalSelectedCompanies] = useState({});
+  const [localSelectedDesignations, setLocalSelectedDesignations] = useState({});
+  const [localSelectedServices, setLocalSelectedServices] = useState({});
+  const [searchTerm, setSearchTerm] = useState('');
+  const [keywords, setKeywords] = useState([]); // Changed to an array
+  const [attorneysData, setAttorneysData] = useState([]);
 
-  const updateFilters = (filterName, index) => {
-    const updatedOptions = [...filters[filterName].options];
-    updatedOptions[index] = !updatedOptions[index]; 
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      [filterName]: { ...prevFilters[filterName], options: updatedOptions },
-    }));
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch('http://135.181.19.83:5039/get_companies/');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        if (Array.isArray(data.companies)) {
+          setCompanies(data.companies);
+          setKeywords(data.keywords || []); // Set keywords from API response
+        } else {
+          console.warn('Expected an array of companies, received:', data);
+          setCompanies([]);
+        }
+      } catch (error) {
+        console.error('Error fetching companies:', error);
+        setError(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCompanies();
+  }, []);
+
+  const fetchDesignations = async (selectedCompanies) => {
+    setLoading(true);
+    try {
+      const companiesString = selectedCompanies.map(company => `company=${encodeURIComponent(company)}`).join('&');
+      const response = await fetch(`http://135.181.19.83:5039/get_designations/?${companiesString}`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
+      if (Array.isArray(data.designations)) {
+        setDesignations(data.designations);
+      } else {
+        console.warn('Expected an array of designations, received:', data);
+        setDesignations([]);
+      }
+    } catch (error) {
+      console.error('Error fetching designations:', error);
+      setError(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const toggleCollapse = (filterName) => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      [filterName]: {
-        ...prevFilters[filterName],
-        isCollapsed: !prevFilters[filterName].isCollapsed,
-      },
-    }));
-  };
+  useEffect(() => {
+    
+    handleApplyFilters();
+      
+    
+  }, []);
 
-  // Extract unique options for filters
-  const companies = [...new Set(data.map(item => item.company))];
-  const designations = [...new Set(data.map(item => item.designation))];
-  const services = [...new Set(data.map(item => item.service))];
-
-  // Initialize options for the filters
-  if (filters.companies.options.length === 0) {
-    setFilters(prev => ({
-      ...prev,
-      companies: { options: companies.map(() => false), isCollapsed: true },
-    }));
-  }
+  const handleApplyFilters = async () => {
+    const selectedCompanies = Object.keys(localSelectedCompanies).filter(company => localSelectedCompanies[company]);
+    const selectedDesignations = Object.keys(localSelectedDesignations).filter(designation => localSelectedDesignations[designation]);
+    const selectedServices = Object.keys(localSelectedServices).filter(service => localSelectedServices[service]);
+    
+    const params = {
+      company: selectedCompanies.length > 0 ? selectedCompanies : undefined,
+    designation: selectedDesignations.length > 0 ? selectedDesignations : undefined,
+    Keyword: selectedServices.length > 0 ? selectedServices : undefined,
+      
+    };
   
-  if (filters.designations.options.length === 0) {
-    setFilters(prev => ({
+    try {
+      const response = await fetch('http://135.181.19.83:5039/attorneys/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        
+
+        body: JSON.stringify(params),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+  
+      const data = await response.json();
+      console.log('API response data:', data);
+      setAttorneysData(data || []);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  const handleCompanyChange = (companyName) => {
+    setLocalSelectedCompanies(prev => {
+      const updatedSelection = {
+        ...prev,
+        [companyName]: !prev[companyName],
+      };
+
+      fetchDesignations(Object.keys(updatedSelection).filter(company => updatedSelection[company]));
+
+      return updatedSelection;
+    });
+  };
+
+  const handleDesignationChange = (designation) => {
+    setLocalSelectedDesignations(prev => ({
       ...prev,
-      designations: { options: designations.map(() => false), isCollapsed: true },
+      [designation]: !prev[designation],
     }));
-  }
+  };
 
-  if (filters.services.options.length === 0) {
-    setFilters(prev => ({
+  const handleServiceChange = (service) => {
+    setLocalSelectedServices(prev => ({
       ...prev,
-      services: { options: services.map(() => false), isCollapsed: true },
+      [service]: !prev[service],
     }));
-  }
+  };
 
-  // Filter data based on selected options
-  const filteredData = data.filter(item => {
-    const companyFilter = filters.companies.options[data.map(d => d.company).indexOf(item.company)] && item.company;
-    const designationFilter = filters.designations.options[data.map(d => d.designation).indexOf(item.designation)] && item.designation;
-    const serviceFilter = filters.services.options[data.map(d => d.service).indexOf(item.service)] && item.service;
+  const filteredCompanies = companies.filter(company =>
+    company.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-    return companyFilter || designationFilter || serviceFilter;
-  });
+  const filteredDesignations = designations.filter(designation =>
+    typeof designation === 'string' && designation.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <FilterContext.Provider value={{ filters, updateFilters, toggleCollapse, filteredData }}>
+    <FilterContext.Provider
+      value={{
+        companies,
+        designations,
+        services,
+        loading,
+        error,
+        localSelectedCompanies,
+        localSelectedDesignations,
+        localSelectedServices,
+        handleCompanyChange,
+        handleDesignationChange,
+        handleServiceChange,
+        handleApplyFilters,
+        filteredCompanies,
+        filteredDesignations,
+        searchTerm,
+        setSearchTerm,
+        keywords, // Pass keywords to the context
+        attorneysData,
+      }}
+    >
       {children}
     </FilterContext.Provider>
   );
 };
 
-// Create a custom hook for easy access
-export const useFilters = () => useContext(FilterContext);
+export const useFilter = () => {
+  const context = useContext(FilterContext);
+  if (!context) {
+    throw new Error('useFilter must be used within a FilterProvider');
+  }
+  return context;
+};

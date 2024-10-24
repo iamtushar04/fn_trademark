@@ -1,82 +1,48 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import logo from '../assets/logo.jpg';
 import { FaFilter, FaCaretDown, FaCaretUp } from "react-icons/fa";
+import { useFilter } from '../Context/FilterContext';
+import { useState } from 'react';
 
+const Sidebar = () => {
+  const {
+    companies,
+    designations,
+    loading,
+    localSelectedCompanies,
+    localSelectedDesignations,
+    localSelectedServices,
+    handleCompanyChange,
+    handleDesignationChange,
+    handleServiceChange,
+    handleApplyFilters,
+    filteredCompanies,
+    filteredDesignations,
+    searchTerm,
+    setSearchTerm,
+    keywords,
+    attorneysData,
+  } = useFilter();
 
-const Sidebar = ({
-  companies = [],
-  designations = [],
-  services = [], 
-  selectedCompanies,
-  selectedDesignations,
-  selectedServices,
-  applyFilters,
-  resetFilters
-}) => {
-  const [localSelectedCompanies, setLocalSelectedCompanies] = useState(selectedCompanies);
-  const [localSelectedDesignations, setLocalSelectedDesignations] = useState(selectedDesignations);
-  const [localSelectedServices, setLocalSelectedServices] = useState(selectedServices);
-  
   const [openDropdown, setOpenDropdown] = useState({
     companies: false,
     designations: false,
-    services: false,
+    keywords: false,
   });
 
-  const [searchCompany, setSearchCompany] = useState('');
-  const [searchService, setSearchService] = useState('');
-  const [searchDesignation, setSearchDesignation] = useState('');
-
-  useEffect(() => {
-    setLocalSelectedCompanies(selectedCompanies);
-    setLocalSelectedDesignations(selectedDesignations);
-    setLocalSelectedServices(selectedServices);
-  }, [selectedCompanies, selectedDesignations, selectedServices]);
-
-  const handleCompanyChange = (company) => {
-    const newSelection = { ...localSelectedCompanies, [company]: !localSelectedCompanies[company] };
-    setLocalSelectedCompanies(newSelection);
+  const toggleDropdown = (section) => {
+    setOpenDropdown(prev => ({ ...prev, [section]: !prev[section] }));
   };
 
-  const handleDesignationChange = (designation) => {
-    const newSelection = { ...localSelectedDesignations, [designation]: !localSelectedDesignations[designation] };
-    setLocalSelectedDesignations(newSelection);
-  };
-
-  const handleServiceChange = (service) => {
-    const newSelection = { ...localSelectedServices, [service]: !localSelectedServices[service] };
-    setLocalSelectedServices(newSelection);
-  };
-
-  const handleApplyFilters = () => {
-    applyFilters(localSelectedCompanies, localSelectedDesignations, localSelectedServices);
-  };
+  const filteredServices = []; // Define how you want to handle services if needed
 
   const handleResetFilters = () => {
-    setLocalSelectedCompanies({});
-    setLocalSelectedDesignations({});
-    setLocalSelectedServices({});
-    resetFilters();
+    // setLocalSelectedCompanies({});
+    // setLocalSelectedDesignations({});
+    // setLocalSelectedServices({});
+    // resetFilters();
+    window.location.reload();
   };
-
-  const toggleDropdown = (section) => {
-    setOpenDropdown(prev => ({
-      ...prev,
-      [section]: !prev[section],
-    }));
-  };
-
-  const filteredCompanies = companies.filter(company => 
-    company.toLowerCase().includes(searchCompany.toLowerCase())
-  );
-
-  const filteredServices = services.filter(service =>
-    service && typeof service === 'string' && service.toLowerCase().includes(searchService.toLowerCase())
-  );
-
-  const filteredDesignations = designations.filter(designation =>
-    designation && typeof designation === 'string' && designation.toLowerCase().includes(searchDesignation.toLowerCase())
-  );
 
   return (
     <div className="sidebar">
@@ -93,8 +59,8 @@ const Sidebar = ({
             <input
               type="text"
               placeholder="Search companies..."
-              value={searchCompany}
-              onChange={(e) => setSearchCompany(e.target.value)}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="filter-search"
             />
             {filteredCompanies.map(company => (
@@ -112,7 +78,6 @@ const Sidebar = ({
         )}
       </div>
 
-
       {/* Designations Dropdown */}
       <div className="filter-container">
         <div className="filter-header" onClick={() => toggleDropdown('designations')}>
@@ -123,8 +88,8 @@ const Sidebar = ({
             <input
               type="text"
               placeholder="Search designations..."
-              value={searchDesignation}
-              onChange={(e) => setSearchDesignation(e.target.value)}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="filter-search"
             />
             {filteredDesignations.map(designation => (
@@ -142,29 +107,27 @@ const Sidebar = ({
         )}
       </div>
 
-      {/* Services Dropdown */}
+      {/* Keywords Dropdown */}
       <div className="filter-container">
-        <div className="filter-header" onClick={() => toggleDropdown('services')}>
-          <h4>Keywords {openDropdown.services ? <FaCaretUp /> : <FaCaretDown />}</h4>
+        <div className="filter-header" onClick={() => toggleDropdown('keywords')}>
+          <h4>Keywords {openDropdown.keywords ? <FaCaretUp /> : <FaCaretDown />}</h4>
         </div>
-        {openDropdown.services && (
+        {openDropdown.keywords && (
           <div className="filter-options">
             <input
               type="text"
-              placeholder="Search services..."
-              value={searchService}
-              onChange={(e) => setSearchService(e.target.value)}
+              placeholder="Search keywords..."
               className="filter-search"
             />
-            {filteredServices.map(service => (
-              <div key={service} className="filter-checkbox">
+            {keywords.map(keyword => (
+              <div key={keyword} className="filter-checkbox">
                 <input
                   type="checkbox"
-                  id={service}
-                  checked={localSelectedServices[service] || false}
-                  onChange={() => handleServiceChange(service)}
+                  id={keyword}
+                  checked={localSelectedServices[keyword] || false}
+                  onChange={() => handleServiceChange(keyword)}
                 />
-                <label htmlFor={service}>{service}</label>
+                <label htmlFor={keyword}>{keyword}</label>
               </div>
             ))}
           </div>
@@ -174,6 +137,7 @@ const Sidebar = ({
       <div className="filter-buttons">
         <button onClick={handleApplyFilters} className="filter-button">Apply</button>
         <button onClick={handleResetFilters} className="filter-button">Reset</button>
+   
       </div>
 
       <style jsx>{`
@@ -181,51 +145,51 @@ const Sidebar = ({
           margin-bottom: 20px;
         }
         .sidebar {
-          background-color: #f0f0f0; /* Light gray background */
+          background-color: #f0f0f0;
           padding: 10px; 
-          box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Optional shadow for a sidebar effect */
+          box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
         }
         .filter-container {
-          margin-bottom: 10px; /* Space below the filter */
+          margin-bottom: 10px; 
         }
         .filter-header {
-          cursor: pointer; /* Pointer cursor for dropdown header */
-          display: flex; /* Flexbox for header alignment */
-          justify-content: space-between; /* Space between title and arrow */
-          align-items: center; /* Center align items */
-          padding: 5px; /* Padding for header */
-          background-color: #e9ecef; /* Light background for header */
-          border-radius: 4px; /* Rounded corners */
+          cursor: pointer; 
+          display: flex; 
+          justify-content: space-between; 
+          align-items: center; 
+          padding: 5px; 
+          background-color: #e9ecef; 
+          border-radius: 4px; 
         }
         .filter-options {
           padding-left: 20px;
           max-height: 120px;
-          overflow-y: auto; /* Enable vertical scrolling for options */
+          overflow-y: auto; 
         }
         .filter-checkbox {
-          margin-bottom: 5px; /* Space between checkbox rows */
+          margin-bottom: 5px; 
         }
         .filter-buttons {
-          margin: 10px 0; /* Space for buttons */
+          margin: 10px 0; 
         }
         .filter-button {
-          margin-right: 10px; /* Space between buttons */
-          padding: 8px 12px; /* Padding for buttons */
-          background-color: #007bff; /* Button background color */
-          color: white; /* Button text color */
-          border: none; /* Remove border */
-          border-radius: 4px; /* Rounded corners */
-          cursor: pointer; /* Pointer cursor on hover */
+          margin-right: 10px; 
+          padding: 8px 12px; 
+          background-color: #007bff; 
+          color: white; 
+          border: none; 
+          border-radius: 4px; 
+          cursor: pointer; 
         }
         .filter-button:hover {
-          background-color: #0056b3; /* Darker blue on hover */
+          background-color: #0056b3; 
         }
         .filter-search {
           margin-bottom: 10px;
           padding: 5px;
-          width: 100%; /* Full width */
-          border: 1px solid #ccc; /* Border style */
-          border-radius: 4px; /* Rounded corners */
+          width: 100%; 
+          border: 1px solid #ccc; 
+          border-radius: 4px; 
         }
       `}</style>
     </div>
