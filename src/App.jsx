@@ -10,9 +10,10 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedROutes';
 
 import { DataProvider } from './Context/DataContext';
-import Category from './components/Category';
+
 import MainPage from './pages/Main';
 import Settings from './pages/Settings';
+import { FilterProvider } from './Context/FilterContext';
 
 function App() {
   const [count, setCount] = useState(0);
@@ -20,6 +21,7 @@ function App() {
   return (
     <AuthProvider>
       <DataProvider>
+        <FilterProvider>
       <Router>
       
       
@@ -36,11 +38,12 @@ function App() {
 
           <Route path="/" element={<ProtectedRoute element={<MainPage />} />} />
           {/* <Route path="/data" element={<ProtectedRoute element={<DataCoverage />} />} /> */}
-          <Route path="/setting" element={<Settings />} />
+          {/* <Route path="/setting" element={<Settings />} /> */}
         
           {/* Add more routes as needed */}
         </Routes>
       </Router>
+      </FilterProvider>
       </DataProvider>
     </AuthProvider>
   );
